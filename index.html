@@ -1,1 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Journal</title>
 
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Georgia, "Times New Roman", serif;
+        background: #e8e0d5;
+        color: #332b25;
+    }
+
+    /* ---------- PIN SCREEN ---------- */
+
+    #lockScreen {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 30px;
+    }
+
+    .lockBox {
+        width: min(380px, 100%);
+        background: #f8f3eb;
+        padding: 45px 35px;
+        border-radius: 8px;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.15);
+        text-align: center;
+    }
+
+    .lockTitle {
+        font-size: 32px;
+        margin-bottom: 8px;
+    }
+
+    .lockSubtitle {
+        font-size: 15px;
+        color: #766b61;
+        margin-bottom: 30px;
+    }
+
+    #pinInput {
+        width: 100%;
+        padding: 14px;
+        font-size: 24px;
+        text-align: center;
+        letter-spacing: 8px;
+        border: 1px solid #cfc3b6;
+        border-radius: 6px;
+        background: white;
+        outline: none;
+    }
+
+    #pinInput:focus {
+        border-color: #8f8174;
+    }
+
+    #unlockButton {
+        width: 100%;
+        margin-top: 18px;
+        padding: 13px;
+        border: none;
+        border-radius: 6px;
+        background: #332b25;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    #unlockButton:hover {
+        opacity: 0.85;
+    }
+
+    #error {
+        height: 20px;
+        margin-top: 12px;
+        color: #a24c4c;
+        font-size: 14px;
+    }
+
+    /* ---------- JOURNAL ---------- */
+
+    #journal {
+        display: none;
+        min-height: 100vh;
+        padding: 30px;
+    }
+
+    .journalContainer {
+        width: min(900px, 100%);
+        margin: auto;
+    }
+
+    .topBar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .journalName {
+        font-size: 25px;
+    }
+
+    #lockButton {
+        border: 1px solid #b8aa9c;
+        background: #f8f3eb;
+        color: #4a4038;
+        padding: 8px 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .paper {
+        min-height: 750px;
+        background:
+            repeating-linear-gradient(
+                to bottom,
+                #fffdf8 0px,
+                #fffdf8 31px,
+                #ded7cd 32px
+            );
+        padding: 55px 65px;
+        box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+        border-radius: 3px;
+    }
+
+    #date {
+        font-size: 15px;
+        color: #81766c;
+        margin-bottom: 30px;
+    }
+
+    #writingArea {
+        width: 100%;
+        min-height: 620px;
+        border: none;
+        outline: none;
+        resize: none;
+        background: transparent;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 19px;
+        line-height: 32px;
+        color: #332b25;
+    }
+
+    #savedMessage {
+        text-align: center;
+        color: #81766c;
+        font-size: 13px;
+        margin-top: 12px;
+        height: 18px;
+    }
+
+    @media (max-width: 600px) {
+        #journal {
+            padding: 12px;
+        }
+
+        .paper {
+            padding: 40px 25px;
+        }
+
+        #writingArea {
+            font-size: 17px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<!-- PIN SCREEN -->
+
+<div id="lockScreen">
+
+    <div class="lockBox">
+
+        <div class="lockTitle">My Journal</div>
+
+        <div class="lockSubtitle">
+            Enter your PIN to open your journal
+        </div>
+
+        <input
+            id="pinInput"
+            type="password"
+            inputmode="numeric"
+            maxlength="4"
+            placeholder="••••"
+        >
+
+        <button id="unlockButton">
+            Unlock
+        </button>
+
+        <div id="error"></div>
+
+    </div>
+
+</div>
+
+
+<!-- JOURNAL -->
+
+<div id="journal">
+
+    <div class="journalContainer">
+
+        <div class="topBar">
+
+            <div class="journalName">
+                My Journal
+            </div>
+
+            <button id="lockButton">
+                Lock
+            </button>
+
+        </div>
+
+        <div class="paper">
+
+            <div id="date"></div>
+
+            <textarea
+                id="writingArea"
+                placeholder="Start writing..."
+            ></textarea>
+
+        </div>
+
+        <div id="savedMessage"></div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /*
+       ============================================
+       CHANGE YOUR PIN HERE
+       ============================================
+
+       Replace 1234 with the PIN you want.
+
+       Example:
+       const CORRECT_PIN = "5831";
+    */
+
+    const CORRECT_PIN = "0707";
+
+
+    const lockScreen = document.getElementById("lockScreen");
+    const journal = document.getElementById("journal");
+    const pinInput = document.getElementById("pinInput");
+    const unlockButton = document.getElementById("unlockButton");
+    const lockButton = document.getElementById("lockButton");
+    const error = document.getElementById("error");
+    const writingArea = document.getElementById("writingArea");
+    const savedMessage = document.getElementById("savedMessage");
+    const date = document.getElementById("date");
+
+
+    /* Today's date */
+
+    const today = new Date();
+
+    date.textContent = today.toLocaleDateString(
+        undefined,
+        {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        }
+    );
+
+
+    /* Load previously saved writing */
+
+    const savedWriting = localStorage.getItem("myJournalEntry");
+
+    if (savedWriting) {
+        writingArea.value = savedWriting;
+    }
+
+
+    /* Unlock */
+
+    function unlockJournal() {
+
+        if (pinInput.value === CORRECT_PIN) {
+
+            lockScreen.style.display = "none";
+            journal.style.display = "block";
+
+            pinInput.value = "";
+            error.textContent = "";
+
+            writingArea.focus();
+
+        } else {
+
+            error.textContent = "Incorrect PIN.";
+
+            pinInput.value = "";
+
+            pinInput.focus();
+
+        }
+    }
+
+
+    unlockButton.addEventListener("click", unlockJournal);
+
+
+    /* Press Enter to unlock */
+
+    pinInput.addEventListener("keydown", function(event) {
+
+        if (event.key === "Enter") {
+            unlockJournal();
+        }
+
+    });
+
+
+    /* Save writing automatically */
+
+    writingArea.addEventListener("input", function() {
+
+        localStorage.setItem(
+            "myJournalEntry",
+            writingArea.value
+        );
+
+        savedMessage.textContent = "Saved";
+
+        setTimeout(function() {
+            savedMessage.textContent = "";
+        }, 1200);
+
+    });
+
+
+    /* Lock journal */
+
+    lockButton.addEventListener("click", function() {
+
+        journal.style.display = "none";
+        lockScreen.style.display = "flex";
+
+        writingArea.blur();
+
+    });
+
+
+</script>
+
+</body>
+</html>
